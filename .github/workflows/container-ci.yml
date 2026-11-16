@@ -54,6 +54,6 @@ jobs:
             -e DOMAIN=aurora.example.test \
             -e ACME_EMAIL=ops@example.test \
             -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
-            caddy:2.8 validate --config /etc/caddy/Caddyfile --adapter caddyfile
+            --entrypoint caddy caddy:2.8 validate --config /etc/caddy/Caddyfile --adapter caddyfile
       - name: Build API container
         run: docker build --tag aurora-api:ci .
