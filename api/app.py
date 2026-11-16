@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
@@ -127,7 +127,7 @@ def add_pattern(body: PatternIn, claims: dict = Depends(claims_from_token)):
 
 
 @app.get("/search")
-def search(q: str = Field(min_length=1, max_length=500), limit: int = 20,
+def search(q: str = Query(min_length=1, max_length=500), limit: int = 20,
            claims: dict = Depends(claims_from_token)):
     require_scope(claims, "well:read")
     return app.state.well.search(owner_id=claims["sub"], query=q, limit=max(1, min(limit, 100)))
