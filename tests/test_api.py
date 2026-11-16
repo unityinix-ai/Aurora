@@ -35,6 +35,13 @@ class ApiSecurityTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("orochimaru", [item["key"] for item in response.json()])
 
+    def test_public_health_does_not_expose_ledger_details(self):
+        response = self.client.get("/health")
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ledger_valid"])
+        self.assertNotIn("head_hash", response.json())
+        self.assertNotIn("records_checked", response.json())
+
     def test_read_scope_is_required(self):
         self.authenticate_as([])
         response = self.client.get(
