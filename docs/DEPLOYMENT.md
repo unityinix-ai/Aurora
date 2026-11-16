@@ -36,7 +36,7 @@ Set `MODEL_API_KEY`, `MODEL_NAME`, and optionally `MODEL_API_BASE_URL` on the ho
 5. Ensure the OIDC issuer, audience, and JWKS URL exactly match the identity provider configuration. Ensure the frontend origin is listed in `CORS_ORIGINS`.
 6. Run `docker compose config` and review the rendered configuration locally on the host. Do not paste secrets into tickets or logs.
 7. Run `docker compose up --build -d`; confirm `docker compose ps`, `docker compose logs --tail=100 api caddy`, and `https://$DOMAIN/health`.
-8. Confirm the health response reports valid ledger integrity and authentication configuration. Chat should report model configuration only after a provider key and model are supplied.
+8. Confirm the public health response reports service status and ledger validity only. Do not expose ledger hashes, record counts, or configuration details on the public health route. Chat should report model configuration only after a provider key and model are supplied.
 9. Configure platform-level rate limiting, alerting, host patching, encrypted off-host backups, and a tested restore process before real user data is stored.
 
 ## Operational controls and known gaps
