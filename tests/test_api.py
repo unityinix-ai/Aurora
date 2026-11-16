@@ -11,7 +11,7 @@ class ApiSecurityTests(unittest.TestCase):
         self.previous_model = app.state.model_adapter
         app.state.authenticator = None
         app.state.model_adapter = None
-        self.client = TestClient(app)
+        self.client = TestClient(app, base_url="http://localhost")
 
     def tearDown(self):
         app.state.authenticator = self.previous_authenticator
