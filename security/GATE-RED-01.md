@@ -2,30 +2,40 @@
 
 **Repository:** unityinix-ai/Aurora  
 **Scope:** Isolated staging / local test fixtures  
-**Status:** Harness scaffold created; application integration not yet assessed  
+**Status:** Policy harness committed; application integration not yet assessed  
 **Rule:** No production targets, third-party systems, real credentials, or real user data.
+
+## Reconnaissance
+
+The repository was inspected on 2026-11-16. Its default branch contained only the GATE-RED-01 security scaffold; no chatbot application, API routes, authentication service, database integration, or staging deployment was present. Consequently, live application penetration tests cannot yet be run against this repository.
 
 ## Objectives
 
 1. Confirm the Genesis Gate denies access by default.
 2. Confirm authorization is enforced server-side, not by persona prompts or conversational recognition.
-3. Confirm one user's session cannot read another user's protected records.
+3. Confirm one user's session cannot read another user's private Well records.
 4. Confirm private Well records and credentials are not exposed in model output.
 5. Preserve evidence sufficient for independent review.
 
-## Implemented in this scaffold
+## Implemented scaffold
 
-The security/gate_policy.py module provides a small fail-closed policy function. It checks validated claims for issuer, audience, subject, token identifier, expiry, not-before time, required scope, and revocation status. A revocation lookup error denies access.
+- `security/gate_policy.py`: checks trusted, pre-validated claims for issuer, audience, subject, token identifier, expiry, not-before time, required scope, and revocation status. Revocation lookup errors deny access.
+- `security/access_policy.py`: requires the authenticated subject to match the record owner and hold the required scope. It has no implicit administrator bypass.
+- `tests/test_gate_policy.py`: synthetic gate authorization tests.
+- `tests/test_access_policy.py`: synthetic private-record ownership tests.
+- `.github/workflows/gate-red-01.yml`: runs Python unittest discovery on relevant pushes and pull requests.
 
-**Critical limitation:** this function does not authenticate credentials or verify JWT signatures. A production integration must use a maintained authentication library and trusted middleware to validate signature, allowed algorithm, issuer, audience, expiry, and key rotation before passing claims to this policy. Never accept claims directly from a browser request or an LLM.
+**Critical limitation:** the policy functions do not authenticate credentials or verify JWT signatures. Production integration must use maintained authentication middleware to validate signature, allowed algorithm, issuer, audience, expiry, and key rotation before passing claims to these functions. Never accept claims directly from a browser request, user-supplied JSON, or an LLM.
 
-## Test execution
+## Local unit-test evidence
 
-Run locally:
+On 2026-11-16, 21 unit tests covering the committed policy logic were executed in an isolated temporary Python test fixture using synthetic claims and identifiers. Result: **21 passed, 0 failed**.
+
+This is policy-level unit-test evidence only. It is not evidence that GitHub Actions completed, or that a deployed chatbot, API, database, session store, or Genesis Gate is secure.
+
+Reproduce from a checkout:
 
     python -m unittest discover -s tests -v
-
-The test suite uses synthetic claims and identifiers only. Passing these unit tests does not establish that an application, API, database, session store, deployment, or Genesis Gate is secure.
 
 ## Required staging integration tests
 
@@ -51,4 +61,4 @@ For every run, record: test ID, UTC timestamp, commit SHA, application build, sy
 
 ## Release gate
 
-Do not call the Gate secure until the integrated staging tests have been executed against the actual application, including authentication middleware, API routes, storage access controls, session isolation, audit handling, and model/tool boundaries. Record unresolved risks and failed tests explicitly.
+Do not call the Gate secure until integrated staging tests have been executed against the actual application, including authentication middleware, API routes, storage access controls, session isolation, audit handling, and model/tool boundaries. Record unresolved risks and failed tests explicitly.
