@@ -1,0 +1,59 @@
+name: Aurora Container CI
+on:
+  push:
+    paths:
+      - 'api/**'
+      - 'security/**'
+      - 'well/**'
+      - 'personas/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'compose.yaml'
+      - 'Caddyfile'
+      - '.github/workflows/container-ci.yml'
+  pull_request:
+    paths:
+      - 'api/**'
+      - 'security/**'
+      - 'well/**'
+      - 'personas/**'
+      - 'tests/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'compose.yaml'
+      - 'Caddyfile'
+      - '.github/workflows/container-ci.yml'
+permissions:
+  contents: read
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Run tests
+        run: python -m unittest discover -s tests -v
+      - name: Validate Compose configuration
+        env:
+          DOMAIN: aurora.example.test
+          ACME_EMAIL: ops@example.test
+          JWT_JWKS_URL: https://identity.example.test/.well-known/jwks.json
+          JWT_ISSUER: https://identity.example.test/
+          JWT_AUDIENCE: aurora-api
+        run: docker compose config --quiet
+      - name: Validate Caddy configuration
+        run: |
+          docker run --rm \
+            -e DOMAIN=aurora.example.test \
+            -e ACME_EMAIL=ops@example.test \
+            -v "$PWD/Caddyfile:/etc/caddy/Caddyfile:ro" \
+            --entrypoint caddy caddy:2.8 validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Build API container
+        run: docker build --tag aurora-api:ci .
