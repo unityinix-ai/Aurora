@@ -8,7 +8,7 @@ The API validates the token signature against the configured JWKS endpoint and v
 
 | Route | Required scope | Notes |
 |---|---|---|
-| GET /health | Public | Reports service and ledger health/configuration |
+| GET /health | Public | Minimal service status and ledger-valid flag; no ledger metadata |
 | GET /personas | Public | Returns the allow-listed persona registry |
 | GET /search?q=... | well:read | Owner-scoped lexical retrieval |
 | GET /records/{event_id} | well:read | Owner-scoped record lookup |
