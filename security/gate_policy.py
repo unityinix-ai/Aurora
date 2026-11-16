@@ -5,6 +5,7 @@ authentication middleware after signature, issuer, audience, and algorithm
 validation. Never pass user-supplied JSON as claims.
 """
 from collections.abc import Callable, Mapping
+from math import isfinite
 from typing import Any
 
 
@@ -23,6 +24,8 @@ def authorize_gate(
     if not all(isinstance(value, str) and value for value in (
         required_scope, expected_issuer, expected_audience
     )):
+        return False
+    if isinstance(now, bool) or not isinstance(now, (int, float)) or not isfinite(now):
         return False
 
     issuer = claims.get("iss")
@@ -44,11 +47,11 @@ def authorize_gate(
         return False
     if isinstance(expires_at, bool) or not isinstance(expires_at, (int, float)):
         return False
-    if expires_at <= now:
+    if not isfinite(expires_at) or expires_at <= now:
         return False
     if isinstance(not_before, bool) or not isinstance(not_before, (int, float)):
         return False
-    if not_before > now:
+    if not isfinite(not_before) or not_before > now:
         return False
 
     scopes = claims.get("scope", [])
