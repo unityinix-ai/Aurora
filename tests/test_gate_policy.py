@@ -86,6 +86,14 @@ class GatePolicyTests(unittest.TestCase):
         claims["exp"] = True
         self.assertFalse(self.check(claims))
 
+    def test_non_finite_expiration_is_denied(self):
+        claims = valid_claims()
+        claims["exp"] = float("inf")
+        self.assertFalse(self.check(claims))
+
+    def test_non_finite_clock_is_denied(self):
+        self.assertFalse(self.check(valid_claims(), now=float("nan")))
+
 
 if __name__ == "__main__":
     unittest.main()
