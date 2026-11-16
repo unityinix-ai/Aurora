@@ -93,9 +93,7 @@ def health():
     verification = app.state.ledger.verify()
     return {
         "status": "ok" if verification["valid"] else "degraded",
-        "authentication_configured": callable(app.state.authenticator),
-        "model_adapter_configured": callable(app.state.model_adapter),
-        "ledger": verification,
+        "ledger_valid": verification["valid"],
     }
 
 
